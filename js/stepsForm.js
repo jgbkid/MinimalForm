@@ -4,12 +4,15 @@
  *
  * Licensed under the MIT license.
  * http://www.opensource.org/licenses/mit-license.php
- * 
+ *
  * Copyright 2014, Codrops
  * http://www.codrops.com
  */
+
+/* Modified by zmarouf */
+
 ;( function( window ) {
-	
+
 	'use strict';
 
 	var transEndEventNames = {
@@ -23,7 +26,7 @@
 		support = { transitions : Modernizr.csstransitions };
 
 	function extend( a, b ) {
-		for( var key in b ) { 
+		for( var key in b ) {
 			if( b.hasOwnProperty( key ) ) {
 				a[key] = b[key];
 			}
@@ -52,13 +55,16 @@
 		this.questionsCount = this.questions.length;
 		// show first question
 		classie.addClass( this.questions[0], 'current' );
-		
+
 		// next question control
 		this.ctrlNext = this.el.querySelector( 'button.next' );
 
+		// previous question control
+		this.ctrlPrevious = this.el.querySelector( 'button.previous' );
+
 		// progress bar
 		this.progress = this.el.querySelector( 'div.progress' );
-		
+
 		// question number status
 		this.questionStatus = this.el.querySelector( 'span.number' );
 		// current question placeholder
@@ -70,7 +76,7 @@
 
 		// error message
 		this.error = this.el.querySelector( 'span.error-message' );
-		
+
 		// init events
 		this._initEvents();
 	};
@@ -89,9 +95,15 @@
 		firstElInput.addEventListener( 'focus', onFocusStartFn );
 
 		// show next question
-		this.ctrlNext.addEventListener( 'click', function( ev ) { 
+		this.ctrlNext.addEventListener( 'click', function( ev ) {
 			ev.preventDefault();
-			self._nextQuestion(); 
+			self._nextQuestion();
+		} );
+
+		// show previous question
+		this.ctrlPrevious.addEventListener( 'click', function( ev ) {
+			ev.preventDefault();
+			self._previousQuestion();
 		} );
 
 		// pressing enter will jump to next question
@@ -110,7 +122,7 @@
 			// tab
 			if( keyCode === 9 ) {
 				ev.preventDefault();
-			} 
+			}
 		} );
 	};
 
@@ -119,6 +131,9 @@
 			return false;
 		}
 
+          console.log(this.current);
+          if( this.current >= 0)
+		 classie.addClass( this.ctrlPrevious, 'show' );
 		// check if form is filled
 		if( this.current === this.questionsCount - 1 ) {
 			this.isFilled = true;
@@ -147,7 +162,9 @@
 			// current question
 			var nextQuestion = this.questions[ this.current ];
 			classie.removeClass( currentQuestion, 'current' );
-			classie.addClass( nextQuestion, 'current' );
+                        classie.addClass( nextQuestion, 'current' );
+                        classie.removeClass( nextQuestion, 'old' );
+                        classie.addClass( currentQuestion, 'old' );
 		}
 
 		// after animation ends, remove class "show-next" from form element and change current question placeholder
@@ -174,12 +191,73 @@
 		else {
 			onEndTransitionFn();
 		}
-	}
+	};
+
+
+stepsForm.prototype._previousQuestion = function() {
+
+  console.log(this.current);
+  // hides back on first question
+     if( this.current < 2 )
+       classie.removeClass( this.ctrlPrevious, 'show' );
+
+		// clear any previous error messages
+		this._clearError();
+
+		// current question
+		var currentQuestion = this.questions[ this.current ];
+
+		// Decrement current question iterator
+		this.current = this.current - 1;
+
+		// update progress bar
+		this._progress();
+
+			// change the current question number/status
+			this._updateQuestionNumber();
+
+			// add class "show-previous" to form element (start animations)
+			classie.addClass( this.el, 'show-previous' );
+
+			// remove class "current" from current question and add it to the previous one
+			// current question
+			var previousQuestion = this.questions[ this.current ];
+			classie.removeClass( currentQuestion, 'current' );
+			classie.addClass( previousQuestion, 'current' );
+			classie.removeClass( previousQuestion, 'old' );
+			classie.addClass( currentQuestion, 'old' );
+
+		// after animation ends, remove class "show-previous" from form element and change current question placeholder
+		var self = this,
+			onEndTransitionFn = function( ev ) {
+				if( support.transitions ) {
+					this.removeEventListener( transEndEventName, onEndTransitionFn );
+				}
+				if( self.isFilled ) {
+					self._submit();
+				}
+				else {
+					classie.removeClass( self.el, 'show-previous' );
+					self.currentNum.innerHTML = self.nextQuestionNum.innerHTML;
+					self.questionStatus.removeChild( self.nextQuestionNum );
+					// force the focus on the next input
+					previousQuestion.querySelector( 'input' ).focus();
+				}
+			};
+
+		if( support.transitions ) {
+			this.progress.addEventListener( transEndEventName, onEndTransitionFn );
+		}
+		else {
+			onEndTransitionFn();
+		}
+	};
+
 
 	// updates the progress bar by setting its width
 	stepsForm.prototype._progress = function() {
 		this.progress.style.width = this.current * ( 100 / this.questionsCount ) + '%';
-	}
+	};
 
 	// changes the current question number
 	stepsForm.prototype._updateQuestionNumber = function() {
@@ -189,12 +267,12 @@
 		this.nextQuestionNum.innerHTML = Number( this.current + 1 );
 		// insert it in the DOM
 		this.questionStatus.appendChild( this.nextQuestionNum );
-	}
+	};
 
 	// submits the form
 	stepsForm.prototype._submit = function() {
 		this.options.onSubmit( this.el );
-	}
+	};
 
 	// TODO (next version..)
 	// the validation function
@@ -207,28 +285,28 @@
 		}
 
 		return true;
-	}
+	};
 
 	// TODO (next version..)
 	stepsForm.prototype._showError = function( err ) {
 		var message = '';
 		switch( err ) {
-			case 'EMPTYSTR' : 
+			case 'EMPTYSTR' :
 				message = 'Please fill the field before continuing';
 				break;
-			case 'INVALIDEMAIL' : 
+			case 'INVALIDEMAIL' :
 				message = 'Please fill a valid email address';
 				break;
 			// ...
 		};
 		this.error.innerHTML = message;
 		classie.addClass( this.error, 'show' );
-	}
+	};
 
 	// clears/hides the current error message
 	stepsForm.prototype._clearError = function() {
 		classie.removeClass( this.error, 'show' );
-	}
+	};
 
 	// add to global namespace
 	window.stepsForm = stepsForm;

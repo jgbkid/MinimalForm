@@ -1,5 +1,9 @@
-Minimal Form Interface
+Minimal Form Interface (with Back button)
 =========
+
+Original here: https://github.com/codrops/MinimalForm
+
+Original Description:
 
 A simplistic form with inputs shown one at a time. Inspired by the form seen on the end of the [PageLanes website](http://www.pagelanes.com/).
 
@@ -7,7 +11,7 @@ A simplistic form with inputs shown one at a time. Inspired by the form seen on 
 
 [Demo](http://tympanus.net/Development/MinimalForm/)
 
-Integrate or build upon it for free in your personal or commercial projects. Don't republish, redistribute or sell "as-is". 
+Integrate or build upon it for free in your personal or commercial projects. Don't republish, redistribute or sell "as-is".
 
 Read more here: [License](http://tympanus.net/codrops/licensing/)
 

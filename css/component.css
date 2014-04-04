@@ -87,6 +87,20 @@
 	animation: moveUpFromDown 0.4s both;
 }
 
+.show-previous .questions li.current > span label {
+	-webkit-animation: moveDownFromUp 0.4s both;
+	animation: moveDownFromUp 0.4s both;
+}
+
+.show-previous .questions li.old > span label,
+.show-previous .questions li.old > input  {
+	-webkit-transition: none;
+	transition: none;
+	-webkit-transform: translateY(-100%);
+	transform: translateY(100%);
+}
+
+
 @-webkit-keyframes moveUpFromDown {
 	from { -webkit-transform: translateY(100%); }
 	to { -webkit-transform: translateY(0); }
@@ -97,11 +111,22 @@
 	to { transform: translateY(0); }
 }
 
+@-webkit-keyframes moveDownFromUp {
+	from { -webkit-transform: translateY(-100%); }
+	to { -webkit-transform: translateY(0); }
+}
+
+@keyframes moveDownFromUp {
+	from { transform: translateY(-100%); }
+	to { transform: translateY(0); }
+}
+
+
 /* Input field */
 .questions input {
 	display: block;
 	margin: 0.3em 0 0 0;
-	padding: 0.5em 1em 0.5em 0.7em;
+	padding: 0.5em 1em 0.5em 1.5em;
 	width: calc(100% - 2em);
 	border: none;
 	background: transparent;
@@ -147,11 +172,35 @@
 	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-.next:hover {
+.previous {
+	position: absolute;
+	left: 0;
+	bottom: 2.15em; /* padding-bottom of form plus progress bar height */
+	display: block;
+	padding: 0;
+	width: 2em;
+	height: 2em;
+	border: none;
+	background: none;
+	color: rgba(0,0,0,0.4);
+	text-align: center;
+	opacity: 0;
+	z-index: 100;
+	cursor: pointer;
+	-webkit-transition: -webkit-transform 0.3s, opacity 0.3s;
+	transition: transform 0.3s, opacity 0.3s;
+	-webkit-transform: translateX(-20%);
+	transform: translateX(-20%);
+	pointer-events: none;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+
+.next:hover, .previous:hover {
 	color: rgba(0,0,0,0.5);
 }
 
-.next::after {
+.next::after, .previous::after {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -169,7 +218,11 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.next.show {
+.previous::after {
+	content: "\e601";
+}
+
+.next.show, .previous.show {
 	opacity: 1;
 	-webkit-transform: translateX(0);
 	transform: translateX(0);
@@ -239,6 +292,18 @@
 .simform.show-next .number-next {
 	-webkit-animation: moveUpFromDown 0.4s both;
 	animation: moveUpFromDown 0.4s both;
+}
+
+.simform.show-previous .number-current {
+	-webkit-transition: -webkit-transform 0.4s;
+	transition: transform 0.4s;
+	-webkit-transform: translateY(100%);
+	transform: translateY(100%);
+}
+
+.simform.show-previous .number-next {
+	-webkit-animation: moveDownFromUp 0.4s both;
+	animation: moveDownFromUp 0.4s both;
 }
 
 /* Error and final message */
